@@ -1,10 +1,10 @@
 const express = require('express');
 const { body } = require('express-validator');
 const { registerUser, loginUser, getMe } = require('../controllers/authController');
+const { protect } = require('../middleware/authMiddleware');
 
 const router = express.Router();
 
-// Validation rules for registration
 const registerValidation = [
   body('name').trim().notEmpty().withMessage('Name is required'),
   body('email').isEmail().withMessage('Please enter a valid email address'),
@@ -17,14 +17,13 @@ const registerValidation = [
     .withMessage('Role must be either student or admin'),
 ];
 
-// Validation rules for login
 const loginValidation = [
   body('email').isEmail().withMessage('Please enter a valid email address'),
   body('password').notEmpty().withMessage('Password is required'),
 ];
 
-router.post('/register',  registerUser);
+router.post('/register', registerValidation, registerUser);
 router.post('/login', loginValidation, loginUser);
-router.get('/me', getMe); // Will be protected with auth middleware in Module 4
+router.get('/me', protect, getMe);
 
 module.exports = router;
