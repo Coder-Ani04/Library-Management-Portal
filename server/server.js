@@ -3,6 +3,7 @@ const cors = require('cors');
 const morgan = require('morgan');
 const env = require('./config/env');
 const connectDB= require('./config/db');
+const authRoutes = require('./routes/authRoutes');
 
 const app = express();
 
@@ -23,6 +24,8 @@ app.get('/api/health', (req, res) => {
     environment: env.NODE_ENV,
   });
 });
+// Auth routes
+app.use('/api/auth', authRoutes);
 
 // 404 handler for unmatched routes
 app.use((req, res) => {
