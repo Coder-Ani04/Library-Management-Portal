@@ -4,6 +4,8 @@ const morgan = require('morgan');
 const env = require('./config/env');
 const connectDB= require('./config/db');
 const authRoutes = require('./routes/authRoutes');
+const categoryRoutes = require('./routes/categoryRoutes');
+const bookRoutes = require('./routes/bookRoutes');
 
 const app = express();
 
@@ -26,6 +28,8 @@ app.get('/api/health', (req, res) => {
 });
 // Auth routes
 app.use('/api/auth', authRoutes);
+app.use('/api/categories', categoryRoutes);
+app.use('/api/books', bookRoutes);
 
 // 404 handler for unmatched routes
 app.use((req, res) => {
