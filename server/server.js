@@ -6,6 +6,8 @@ const connectDB= require('./config/db');
 const authRoutes = require('./routes/authRoutes');
 const categoryRoutes = require('./routes/categoryRoutes');
 const bookRoutes = require('./routes/bookRoutes');
+const issueRoutes = require('./routes/issueRoutes');
+const fineRoutes = require('./routes/fineRoutes');
 
 const app = express();
 
@@ -30,6 +32,8 @@ app.get('/api/health', (req, res) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/books', bookRoutes);
+app.use('/api/issues', issueRoutes);
+app.use('/api/fines', fineRoutes);
 
 // 404 handler for unmatched routes
 app.use((req, res) => {

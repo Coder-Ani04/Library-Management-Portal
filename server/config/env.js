@@ -7,6 +7,8 @@ const env = {
   MONGO_URI: process.env.MONGO_URI,
   JWT_SECRET: process.env.JWT_SECRET,
   JWT_EXPIRE: process.env.JWT_EXPIRE || '7d',
+  ISSUE_PERIOD_DAYS: Number(process.env.ISSUE_PERIOD_DAYS) || 14,
+  FINE_PER_DAY: Number(process.env.FINE_PER_DAY) || 5,
 };
 
 module.exports = env;
