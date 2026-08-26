@@ -7,7 +7,6 @@ const generateToken = require('../utils/generateToken');
 // @access  Public
 const registerUser = async (req, res) => {
   try {
-    // Check validation errors from express-validator middleware
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({
@@ -18,7 +17,6 @@ const registerUser = async (req, res) => {
 
     const { name, email, password, role, studentId, phone } = req.body;
 
-    // Check if user already exists
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       return res.status(400).json({
@@ -27,7 +25,6 @@ const registerUser = async (req, res) => {
       });
     }
 
-    // If registering as student, studentId is required and must be unique
     if (role === 'student') {
       if (!studentId) {
         return res.status(400).json({
@@ -44,7 +41,6 @@ const registerUser = async (req, res) => {
       }
     }
 
-    // Create user — password hashing happens automatically via the pre-save hook
     const user = await User.create({
       name,
       email,
@@ -68,8 +64,7 @@ const registerUser = async (req, res) => {
         studentId: user.studentId,
       },
     });
-  } 
-  catch (error) {
+  } catch (error) {
     res.status(500).json({
       success: false,
       message: 'Server error during registration',
@@ -77,7 +72,6 @@ const registerUser = async (req, res) => {
     });
   }
 };
-
 
 // @desc    Login user
 // @route   POST /api/auth/login
@@ -94,7 +88,6 @@ const loginUser = async (req, res) => {
 
     const { email, password } = req.body;
 
-    // Explicitly select password since schema excludes it by default
     const user = await User.findOne({ email }).select('+password');
 
     if (!user) {
@@ -144,7 +137,7 @@ const loginUser = async (req, res) => {
 
 // @desc    Get currently logged-in user's profile
 // @route   GET /api/auth/me
-// @access  Private (requires auth middleware — built in Module 4)
+// @access  Private
 const getMe = async (req, res) => {
   try {
     const user = await User.findById(req.user.id);
@@ -161,4 +154,48 @@ const getMe = async (req, res) => {
   }
 };
 
-module.exports = { registerUser, loginUser, getMe };
+// @desc    Get all students (admin only)
+// @route   GET /api/auth/students
+// @access  Private/Admin
+const getStudents = async (req, res) => {
+  try {
+    const { search, page = 1, limit = 10 } = req.query;
+
+    const query = { role: 'student' };
+
+    if (search) {
+      query.$or = [
+        { name: { $regex: search, $options: 'i' } },
+        { email: { $regex: search, $options: 'i' } },
+        { studentId: { $regex: search, $options: 'i' } },
+      ];
+    }
+
+    const skip = (Number(page) - 1) * Number(limit);
+
+    const students = await User.find(query)
+      .select('-password')
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(Number(limit));
+
+    const total = await User.countDocuments(query);
+
+    res.status(200).json({
+      success: true,
+      count: students.length,
+      total,
+      totalPages: Math.ceil(total / Number(limit)),
+      currentPage: Number(page),
+      students,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Server error fetching students',
+      error: error.message,
+    });
+  }
+};
+
+module.exports = { registerUser, loginUser, getMe, getStudents };

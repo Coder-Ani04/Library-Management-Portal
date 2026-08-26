@@ -8,6 +8,7 @@ const categoryRoutes = require('./routes/categoryRoutes');
 const bookRoutes = require('./routes/bookRoutes');
 const issueRoutes = require('./routes/issueRoutes');
 const fineRoutes = require('./routes/fineRoutes');
+const requestRoutes = require('./routes/requestRoutes');
 
 const app = express();
 
@@ -34,6 +35,7 @@ app.use('/api/categories', categoryRoutes);
 app.use('/api/books', bookRoutes);
 app.use('/api/issues', issueRoutes);
 app.use('/api/fines', fineRoutes);
+app.use('/api/requests', requestRoutes);
 
 // 404 handler for unmatched routes
 app.use((req, res) => {
