@@ -3,6 +3,8 @@ import { FaPlus, FaEdit, FaTrash, FaBook } from 'react-icons/fa';
 import api from '../../services/api';
 import Modal from '../../components/Modal';
 import ConfirmDialog from '../../components/ConfirmDialog';
+import toast from 'react-hot-toast';
+import Spinner from '../../components/Spinner';
 
 const emptyForm = {
   title: '',
@@ -99,6 +101,7 @@ const ManageBooks = () => {
       }
 
       setModalOpen(false);
+      toast.success(editingBook ? 'Book updated successfully' : 'Book added successfully');
       fetchBooks();
     } catch (error) {
       setFormError(error.response?.data?.message || 'Failed to save book');
@@ -112,9 +115,10 @@ const ManageBooks = () => {
     try {
       await api.delete(`/books/${deleteTarget._id}`);
       setDeleteTarget(null);
+      toast.success('Book deleted successfully');
       fetchBooks();
     } catch (error) {
-      alert(error.response?.data?.message || 'Failed to delete book');
+      toast.error(error.response?.data?.message || 'Failed to delete book');
     } finally {
       setDeleting(false);
     }
@@ -137,7 +141,7 @@ const ManageBooks = () => {
       </div>
 
       {loading ? (
-        <p className="text-slate-400">Loading books...</p>
+        <Spinner/>
       ) : books.length === 0 ? (
         <div className="text-center py-16 text-slate-500">
           <FaBook size={32} className="mx-auto mb-3 opacity-50" />
@@ -162,7 +166,11 @@ const ManageBooks = () => {
                   <td className="px-5 py-4 text-slate-400">{book.author}</td>
                   <td className="px-5 py-4 text-slate-400">{book.category?.name}</td>
                   <td className="px-5 py-4 text-slate-400">
-                    {book.availableCopies}/{book.totalCopies}
+                  {/* Previously showed availableCopies/totalCopies (e.g. "3/12") to indicate
+                      how many copies are currently checked out. Simplified to totalCopies only
+                      to avoid confusing admins. To restore the detailed view, swap the line below
+                      for: {book.availableCopies}/{book.totalCopies} */}
+                    {book.totalCopies}
                   </td>
                   <td className="px-5 py-4">
                     <div className="flex justify-end gap-3">

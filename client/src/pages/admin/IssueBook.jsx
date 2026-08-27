@@ -1,17 +1,18 @@
 import { useState, useEffect } from 'react';
 import { FaExchangeAlt, FaBook } from 'react-icons/fa';
 import api from '../../services/api';
+import toast from 'react-hot-toast';
+import Spinner from '../../components/Spinner';
 
 const IssueBook = () => {
   const [students, setStudents] = useState([]);
   const [books, setBooks] = useState([]);
   const [issuedBooks, setIssuedBooks] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   const [selectedStudent, setSelectedStudent] = useState('');
   const [selectedBook, setSelectedBook] = useState('');
   const [issuing, setIssuing] = useState(false);
-  const [issueError, setIssueError] = useState('');
-  const [issueSuccess, setIssueSuccess] = useState('');
 
   const [returningId, setReturningId] = useState(null);
 
@@ -37,26 +38,29 @@ const IssueBook = () => {
     }
   };
 
+  const fetchAll = async () => {
+    setLoading(true);
+    await Promise.all([fetchDropdownData(), fetchIssuedBooks()]);
+    setLoading(false);
+  };
+
   useEffect(() => {
-    fetchDropdownData();
-    fetchIssuedBooks();
+    fetchAll();
   }, []);
 
   const handleIssue = async (e) => {
     e.preventDefault();
-    setIssueError('');
-    setIssueSuccess('');
     setIssuing(true);
 
     try {
       await api.post('/issues', { studentId: selectedStudent, bookId: selectedBook });
-      setIssueSuccess('Book issued successfully');
+      toast.success('Book issued successfully');
       setSelectedStudent('');
       setSelectedBook('');
       fetchDropdownData();
       fetchIssuedBooks();
     } catch (error) {
-      setIssueError(error.response?.data?.message || 'Failed to issue book');
+      toast.error(error.response?.data?.message || 'Failed to issue book');
     } finally {
       setIssuing(false);
     }
@@ -67,12 +71,14 @@ const IssueBook = () => {
     try {
       const res = await api.put(`/issues/${issuedBookId}/return`);
       if (res.data.fine) {
-        alert(`Book returned. Fine of ₹${res.data.fine.amount} applied for ${res.data.fine.daysLate} day(s) late.`);
+        toast.success(`Returned. Fine of ₹${res.data.fine.amount} applied for ${res.data.fine.daysLate} day(s) late.`);
+      } else {
+        toast.success('Book returned successfully');
       }
       fetchDropdownData();
       fetchIssuedBooks();
     } catch (error) {
-      alert(error.response?.data?.message || 'Failed to return book');
+      toast.error(error.response?.data?.message || 'Failed to return book');
     } finally {
       setReturningId(null);
     }
@@ -82,6 +88,10 @@ const IssueBook = () => {
     new Date(dateStr).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
 
   const isOverdue = (dueDate) => new Date(dueDate) < new Date();
+
+  if (loading) {
+    return <Spinner />;
+  }
 
   return (
     <div>
@@ -94,17 +104,6 @@ const IssueBook = () => {
           <FaExchangeAlt size={16} className="text-indigo-400" />
           Issue a Book
         </h2>
-
-        {issueError && (
-          <div className="bg-red-500/10 border border-red-500/30 text-red-400 text-sm px-4 py-3 rounded-lg mb-4">
-            {issueError}
-          </div>
-        )}
-        {issueSuccess && (
-          <div className="bg-green-500/10 border border-green-500/30 text-green-400 text-sm px-4 py-3 rounded-lg mb-4">
-            {issueSuccess}
-          </div>
-        )}
 
         <form onSubmit={handleIssue} className="grid sm:grid-cols-3 gap-4">
           <select

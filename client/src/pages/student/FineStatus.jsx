@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { FaMoneyBillWave } from 'react-icons/fa';
 import api from '../../services/api';
+import Spinner from '../../components/Spinner';
 
 const FineStatus = () => {
   const [fines, setFines] = useState([]);
@@ -38,7 +39,7 @@ const FineStatus = () => {
       </div>
 
       {loading ? (
-        <p className="text-slate-400">Loading...</p>
+        <Spinner/>
       ) : fines.length === 0 ? (
         <div className="text-center py-16 text-slate-500">
           <FaMoneyBillWave size={32} className="mx-auto mb-3 opacity-50" />

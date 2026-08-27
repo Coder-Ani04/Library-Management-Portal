@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { FaBook } from 'react-icons/fa';
 import api from '../../services/api';
+import Spinner from '../../components/Spinner';
 
 const BorrowedBooks = () => {
   const [issues, setIssues] = useState([]);
@@ -50,7 +51,7 @@ const BorrowedBooks = () => {
       </div>
 
       {loading ? (
-        <p className="text-slate-400">Loading...</p>
+        <Spinner/>
       ) : issues.length === 0 ? (
         <div className="text-center py-16 text-slate-500">
           <FaBook size={32} className="mx-auto mb-3 opacity-50" />

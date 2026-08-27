@@ -3,6 +3,8 @@ import { FaPlus, FaEdit, FaTrash, FaTags } from 'react-icons/fa';
 import api from '../../services/api';
 import Modal from '../../components/Modal';
 import ConfirmDialog from '../../components/ConfirmDialog';
+import toast from 'react-hot-toast';
+import Spinner from '../../components/Spinner';
 
 const emptyForm = { name: '', description: '' };
 
@@ -66,6 +68,7 @@ const ManageCategories = () => {
         await api.post('/categories', formData);
       }
       setModalOpen(false);
+      toast.success(editingCategory ? 'Category updated successfully' : 'Category added successfully');
       fetchCategories();
     } catch (error) {
       setFormError(error.response?.data?.message || 'Failed to save category');
@@ -80,6 +83,7 @@ const ManageCategories = () => {
     try {
       await api.delete(`/categories/${deleteTarget._id}`);
       setDeleteTarget(null);
+      toast.success('Category deleted successfully');
       fetchCategories();
     } catch (error) {
       setDeleteError(error.response?.data?.message || 'Failed to delete category');
@@ -105,7 +109,7 @@ const ManageCategories = () => {
       </div>
 
       {loading ? (
-        <p className="text-slate-400">Loading categories...</p>
+        <Spinner/>
       ) : categories.length === 0 ? (
         <div className="text-center py-16 text-slate-500">
           <FaTags size={32} className="mx-auto mb-3 opacity-50" />

@@ -17,7 +17,6 @@ const createBook = async (req, res) => {
       totalCopies,
     } = req.body;
 
-    // Verify the referenced category actually exists before creating the book
     const categoryExists = await Category.findById(category);
     if (!categoryExists) {
       return res.status(400).json({
@@ -43,7 +42,7 @@ const createBook = async (req, res) => {
       publishedYear,
       coverImage,
       totalCopies,
-      availableCopies: totalCopies, // New book starts with all copies available
+      availableCopies: totalCopies,
     });
 
     const populatedBook = await book.populate('category', 'name');
@@ -71,7 +70,6 @@ const getBooks = async (req, res) => {
 
     const query = {};
 
-    // Full-text search on title/author using the text index we defined
     if (search) {
       query.$text = { $search: search };
     }
@@ -158,7 +156,6 @@ const updateBook = async (req, res) => {
       'totalCopies',
     ];
 
-    // If category is being changed, verify the new one exists
     if (req.body.category) {
       const categoryExists = await Category.findById(req.body.category);
       if (!categoryExists) {
@@ -169,19 +166,21 @@ const updateBook = async (req, res) => {
       }
     }
 
+    // Calculate the copies difference BEFORE overwriting totalCopies below
+    let copiesDiff = 0;
+    if (req.body.totalCopies !== undefined) {
+      copiesDiff = req.body.totalCopies - book.totalCopies;
+    }
+
     allowedFields.forEach((field) => {
       if (req.body[field] !== undefined) {
         book[field] = req.body[field];
       }
     });
 
-    // If totalCopies increased, add the difference to availableCopies too
-    // (so newly added copies are immediately available to borrow)
-    if (req.body.totalCopies !== undefined) {
-      const diff = req.body.totalCopies - book.totalCopies;
-      if (diff > 0) {
-        book.availableCopies += diff;
-      }
+    // Now apply the pre-calculated difference to availableCopies
+    if (copiesDiff > 0) {
+      book.availableCopies += copiesDiff;
     }
 
     await book.save();
@@ -214,7 +213,6 @@ const deleteBook = async (req, res) => {
       });
     }
 
-    // Prevent deleting a book that currently has copies issued out
     if (book.availableCopies < book.totalCopies) {
       return res.status(400).json({
         success: false,

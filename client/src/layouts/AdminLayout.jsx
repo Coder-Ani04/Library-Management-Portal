@@ -1,4 +1,4 @@
-import { Outlet, useNavigate } from 'react-router-dom';
+import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import {
   FaHome, FaBook, FaTags, FaUsers, FaExchangeAlt,
   FaMoneyBillWave, FaSignOutAlt, FaBookOpen,
@@ -6,10 +6,10 @@ import {
 import Sidebar from '../components/Sidebar';
 import { useAuth } from '../context/AuthContext';
 
-
 const AdminLayout = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const location=useLocation();
 
   const links = [
     { path: '/admin/dashboard', label: 'Overview', icon: <FaHome size={16} />, end: true },
@@ -51,7 +51,7 @@ const AdminLayout = () => {
 
       <div className="flex">
         <Sidebar links={links} title="Admin Menu" />
-        <main className="flex-1 p-6">
+        <main className="flex-1 p-6 page-fade-in" key={location.pathname}>
           <Outlet />
         </main>
       </div>

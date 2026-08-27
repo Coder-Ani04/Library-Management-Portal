@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { FaUsers, FaSearch } from 'react-icons/fa';
 import api from '../../services/api';
+import Spinner from '../../components/Spinner';
 
 const ManageStudents = () => {
   const [students, setStudents] = useState([]);
@@ -48,7 +49,7 @@ const ManageStudents = () => {
       </div>
 
       {loading ? (
-        <p className="text-slate-400">Loading students...</p>
+        <Spinner/>
       ) : students.length === 0 ? (
         <div className="text-center py-16 text-slate-500">
           <FaUsers size={32} className="mx-auto mb-3 opacity-50" />

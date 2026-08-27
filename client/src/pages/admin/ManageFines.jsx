@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { FaMoneyBillWave } from 'react-icons/fa';
 import api from '../../services/api';
+import toast from 'react-hot-toast';
+import Spinner from '../../components/Spinner';
 
 const ManageFines = () => {
   const [fines, setFines] = useState([]);
@@ -28,9 +30,10 @@ const ManageFines = () => {
     setPayingId(fineId);
     try {
       await api.put(`/fines/${fineId}/pay`);
+      toast.success('Fine marked as paid');
       fetchFines();
     } catch (error) {
-      alert(error.response?.data?.message || 'Failed to update fine');
+      toast.error(error.response?.data?.message || 'Failed to update fine');
     } finally {
       setPayingId(null);
     }
@@ -61,7 +64,7 @@ const ManageFines = () => {
       </div>
 
       {loading ? (
-        <p className="text-slate-400">Loading fines...</p>
+        <Spinner/>
       ) : fines.length === 0 ? (
         <div className="text-center py-16 text-slate-500">
           <FaMoneyBillWave size={32} className="mx-auto mb-3 opacity-50" />

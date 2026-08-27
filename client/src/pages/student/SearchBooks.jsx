@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { FaSearch, FaBook } from 'react-icons/fa';
 import api from '../../services/api';
+import toast from 'react-hot-toast';
+import Spinner from '../../components/Spinner';
 
 const SearchBooks = () => {
   const [books, setBooks] = useState([]);
@@ -11,7 +13,6 @@ const SearchBooks = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(true);
   const [requestingId, setRequestingId] = useState(null);
-  const [message, setMessage] = useState('');
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -51,13 +52,12 @@ const SearchBooks = () => {
 
   const handleRequest = async (bookId) => {
     setRequestingId(bookId);
-    setMessage('');
     try {
       await api.post('/requests', { bookId });
-      setMessage('Request submitted! Check "My Requests" for status.');
+      toast.success('Request submitted! Check "My Requests" for status.');
       fetchBooks();
     } catch (error) {
-      setMessage(error.response?.data?.message || 'Failed to submit request');
+      toast.error(error.response?.data?.message || 'Failed to submit request');
     } finally {
       setRequestingId(null);
     }
@@ -67,12 +67,6 @@ const SearchBooks = () => {
     <div>
       <h1 className="text-2xl font-bold text-white mb-1">Search Books</h1>
       <p className="text-slate-400 text-sm mb-6">Browse the catalog and request to borrow</p>
-
-      {message && (
-        <div className="bg-indigo-500/10 border border-indigo-500/30 text-indigo-300 text-sm px-4 py-3 rounded-lg mb-4">
-          {message}
-        </div>
-      )}
 
       <div className="flex flex-col sm:flex-row gap-3 mb-6">
         <div className="relative flex-1">
@@ -106,7 +100,7 @@ const SearchBooks = () => {
       </div>
 
       {loading ? (
-        <p className="text-slate-400">Loading books...</p>
+        <Spinner/>
       ) : books.length === 0 ? (
         <div className="text-center py-16 text-slate-500">
           <FaBook size={32} className="mx-auto mb-3 opacity-50" />

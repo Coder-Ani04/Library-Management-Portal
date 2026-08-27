@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { FaClipboardList } from 'react-icons/fa';
 import api from '../../services/api';
+import toast from 'react-hot-toast';
+import Spinner from '../../components/Spinner';
 
 const BookRequests = () => {
   const [requests, setRequests] = useState([]);
@@ -28,9 +30,10 @@ const BookRequests = () => {
     setProcessingId(id);
     try {
       await api.put(`/requests/${id}/approve`);
+      toast.success('Request approved and book issued');
       fetchRequests();
     } catch (error) {
-      alert(error.response?.data?.message || 'Failed to approve request');
+      toast.error(error.response?.data?.message || 'Failed to approve request');
     } finally {
       setProcessingId(null);
     }
@@ -41,9 +44,10 @@ const BookRequests = () => {
     setProcessingId(id);
     try {
       await api.put(`/requests/${id}/reject`, { reason });
+      toast.success('Request rejected');
       fetchRequests();
     } catch (error) {
-      alert(error.response?.data?.message || 'Failed to reject request');
+      toast.error(error.response?.data?.message || 'Failed to reject request');
     } finally {
       setProcessingId(null);
     }
@@ -74,7 +78,7 @@ const BookRequests = () => {
       </div>
 
       {loading ? (
-        <p className="text-slate-400">Loading requests...</p>
+        <Spinner/>
       ) : requests.length === 0 ? (
         <div className="text-center py-16 text-slate-500">
           <FaClipboardList size={32} className="mx-auto mb-3 opacity-50" />

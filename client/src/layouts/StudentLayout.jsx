@@ -1,4 +1,4 @@
-import { Outlet, useNavigate } from 'react-router-dom';
+import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { FaHome, FaSearch, FaBook, FaMoneyBillWave, FaUser, FaSignOutAlt, FaBookOpen, FaClipboardList } from 'react-icons/fa';
 import Sidebar from '../components/Sidebar';
 import { useAuth } from '../context/AuthContext';
@@ -7,6 +7,7 @@ import { useAuth } from '../context/AuthContext';
 const StudentLayout = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const links = [
     { path: '/student/dashboard', label: 'Overview', icon: <FaHome size={16} />, end: true },
@@ -48,7 +49,7 @@ const StudentLayout = () => {
 
       <div className="flex">
         <Sidebar links={links} title="Student Menu" />
-        <main className="flex-1 p-6">
+        <main className="flex-1 p-6 page-fade-in" key={location.pathname}>
           <Outlet />
         </main>
       </div>
